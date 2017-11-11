@@ -1,20 +1,59 @@
 <?php
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
-
 // устанавливаем часовой пояс в Московское время
-date_default_timezone_set('Europe/Moscow');
 
+date_default_timezone_set('Europe/Moscow');
 $days = rand(-3, 3);
 $task_deadline_ts = strtotime("+" . $days . " day midnight"); // метка времени даты выполнения задачи
 $current_ts = strtotime('now midnight'); // текущая метка времени
+$date_deadline = date("d.m.Y",$task_deadline_ts);//дата выполнения задачи
+$days_until_deadline = floor(($task_deadline_ts - $current_ts) / 86400); //кол-во дней до даты задачи
 
-// запишите сюда дату выполнения задачи в формате дд.мм.гггг
-$date_deadline = "10.11.2017";
 
-// в эту переменную запишите кол-во дней до даты задачи
-$days_until_deadline = 2;
+$projects = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"]; //массив проектов
+
+//массив задач
+$tasks = [
+[
+"Задача" => "Собеседование в IT компании",
+"Дата выполнения" => "01.06.2018",
+"Категория" => "Работа",
+"Выполнен" => "Нет"
+],
+[
+"Задача" => "Выполнить тестовое задание",
+"Дата выполнения" => "25.05.2018",
+"Категория" => "Работа",
+"Выполнен" => "Нет"
+],
+[
+"Задача" => "Сделать задание первого раздела",
+"Дата выполнения" => "21.04.2018",
+"Категория" => "Учеба",
+"Выполнен" => "Да"
+],
+[
+"Задача" => "Встреча с другом",
+"Дата выполнения" => "22.04.2018",
+"Категория" => "Входящие",
+"Выполнен" => "Нет"
+],
+[
+"Задача" => "Купить корм для кота",
+"Дата выполнения" => "Нет",
+"Категория" => "Домашние дела",
+"Выполнен" => "Нет"
+],
+[
+"Задача" => "Заказать пиццу",
+"Дата выполнения" => "Нет",
+"Категория" => "Домашние дела",
+"Выполнен" => "Нет"
+]
+];
 ?>
+
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -56,32 +95,42 @@ $days_until_deadline = 2;
             <section class="content__side">
                 <h2 class="content__side-heading">Проекты</h2>
 
-                <nav class="main-navigation">
+                <nav class="main-navigation">				    			
                     <ul class="main-navigation__list">
-                        <li class="main-navigation__list-item">
-                            <a class="main-navigation__list-item-link" href="#">Входящие</a>
-                            <span class="main-navigation__list-item-count">24</span>
-                        </li>
-
-                        <li class="main-navigation__list-item main-navigation__list-item--active">
-                            <a class="main-navigation__list-item-link" href="#">Работа</a>
-                            <span class="main-navigation__list-item-count">12</span>
-                        </li>
-
-                        <li class="main-navigation__list-item">
-                            <a class="main-navigation__list-item-link" href="#">Здоровье</a>
-                            <span class="main-navigation__list-item-count">3</span>
-                        </li>
-
-                        <li class="main-navigation__list-item">
-                            <a class="main-navigation__list-item-link" href="#">Домашние дела</a>
-                            <span class="main-navigation__list-item-count">7</span>
-                        </li>
-
-                        <li class="main-navigation__list-item">
-                            <a class="main-navigation__list-item-link" href="#">Авто</a>
-                            <span class="main-navigation__list-item-count">0</span>
-                        </li>
+					<!--вывод категорий задач-->
+					<?php foreach ($projects as $key => $value): ?>					
+					<li class="main-navigation__list-item <?php if($key==0){print("main-navigation__list-item--active");}?>"> <!--первому элементу присваиваем дополнительный класс-->
+                            <a class="main-navigation__list-item-link" href="#"><?php print($value); ?></a>							
+							<!--вычисляем кол-во задач в категориях-->
+                            <span class="main-navigation__list-item-count">			
+							<?php
+							$licount = 0;
+							if($value=="Все")
+						    {
+								foreach ($tasks as $ka => $va)
+								{
+								 if($va["Категория"]!=null)
+								 {
+								   $licount = $licount + 1;
+								 }
+								}								
+							}
+							else
+							{
+							 foreach ($tasks as $key1 => $value1)
+							 {  
+							  if($value1["Категория"]==$value)
+							  {
+							   $licount = $licount + 1;
+							  }							
+							 }
+							}
+							print ($licount);
+							?>							
+							</span>
+                    </li>										
+					<?php endforeach; ?>      
+					
                     </ul>
                 </nav>
 
@@ -107,66 +156,35 @@ $days_until_deadline = 2;
 
                     <label class="checkbox">
                         <a href="/">
-                           
-						   <!--добавить сюда аттрибут "checked", если переменная $show_complete_tasks равна единице-->
-                            <?php 
-							if ($show_complete_tasks==1)
-							{
-							  print('<input class="checkbox__input visually-hidden" type="checkbox" checked>');	
-							}
-							else
-							{
-							  print('<input class="checkbox__input visually-hidden" type="checkbox">');
-							}
-							?>
-						
+                            <input class="checkbox__input visually-hidden" type="checkbox">   
                             <span class="checkbox__text">Показывать выполненные</span>
                         </a>
                     </label>
                 </div>
-
-                <table class="tasks">
 				
-                    <!--показывать следующий тег <tr/>, если переменная равна единице-->
-                     <?php 
-					if ($show_complete_tasks!=1) 
-					{ 
-				    echo
-					'<tr class="tasks__item task task--completed">
-                        <td class="task__select">
-                            <label class="checkbox task__checkbox">
-                                <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                                <a href="/"><span class="checkbox__text">Сделать главную страницу Дела в порядке</span></a>
-                            </label>
-
-                        </td>
-
-                        <td class="task__file">
-                            <a class="download-link" href="#">Home.psd</a>
-                        </td>
-
-                        <td class="task__date">'. $date_deadline .'</td>
-                    </tr>';
-					}
-					else 
-					{
-					echo
-                    '<tr class="tasks__item task">
-                        <td class="task__select">
-                            <label class="checkbox task__checkbox">
-                                <input class="checkbox__input visually-hidden" type="checkbox">
-                                <a href="/"><span class="checkbox__text">Выполнить домашнее задание</span></a>
-                            </label>
-                        </td>
-
-                        <td class="task__file">
-                        </td>
-
-                        <td class="task__date">21.03.2017</td>
-                    </tr>';
-					}
-					?>
-					
+                <table class="tasks">        
+                    <!--выводим список задач-->				
+                    <?php foreach ($tasks as $key2 => $value2): ?>
+					 <!--Если задача выполнена, то присваетватся класс task--completed-->	
+				     <tr 	
+					  class = "tasks__item task <?php if($value2["Выполнен"]=="Да"){print("task--completed");}?>"
+					 >
+                         <td class="task__select">
+                             <label class="checkbox task__checkbox">
+                                 <input class="checkbox__input visually-hidden" type="checkbox">
+								 <!--выводим название задачи-->	
+                                 <a href="/"><span class="checkbox__text"><?php print($value2["Задача"]); ?></span></a>
+                             </label>
+                         </td>
+                         <td class="task__file">
+                             <a class="download-link" href="#">Home.psd</a>
+                         </td>
+                         <td class="task__date">
+						   <!--выводим дату выполнения задачи-->	
+						   <?php print($value2["Дата выполнения"]);?>
+						 </td>
+                     </tr>
+					<?php endforeach; ?>					
                 </table>
             </main>
         </div>
