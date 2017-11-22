@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
+<!--Отображение оверлея-->
 <body class="<?= $overlay ?>">
 <h1 class="visually-hidden">Дела в порядке</h1>
 
@@ -29,7 +30,7 @@
                     <div class="user-menu__data">
                         <p><?= $username ?></p>
 
-                        <a href="#">Выйти</a>
+                        <a href="\index.php?logout=true">Выйти</a>
                     </div>
                 </div>
             </div>
@@ -43,7 +44,7 @@
                     <ul class="main-navigation__list">
                     <!--вывод категорий задач-->
                     <?php foreach ($projects as $key => $value): ?>
-                    <li class="main-navigation__list-item <?php if ($key == $_GET['project_id'] || (!isset($_GET['project_id'])&&$key==0)): ?> main-navigation__list-item--active <?php endif ?>">
+                    <li class="main-navigation__list-item <?php if ($key == $_GET["project_id"] || (!isset($_GET["project_id"])&&$key==0)): ?> main-navigation__list-item--active <?php endif ?>">
                         <!--формируем адрес ссылки-->
                         <a class="main-navigation__list-item-link" href="<?= "index.php?project_id=" . $key ?>"> <?= $value ?></a>
                         <span class="main-navigation__list-item-count">
@@ -103,9 +104,10 @@
     </div>
 </footer>
 
-
- <?= $form ?>
-
+<div class="modal" <?= $modal_hidden ?>>
+    <!--Вывод формы добаления задачи-->
+    <?= $add_form ?>  
+</form>
 
 <div class="modal" hidden>
     <button class="modal__close" type="button" name="button">Закрыть</button>

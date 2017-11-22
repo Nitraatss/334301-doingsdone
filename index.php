@@ -1,12 +1,14 @@
 <?php
 require_once("functions.php");
+require_once("userdata.php");
+
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
 // устанавливаем часовой пояс в Московское время
-date_default_timezone_set('Europe/Moscow');
+date_default_timezone_set("Europe/Moscow");
 $days = rand(-3, 3);
 $task_deadline_ts = strtotime("+" . $days . " day midnight"); // метка времени даты выполнения задачи
-$current_ts = strtotime('now midnight'); // текущая метка времени
+$current_ts = strtotime("now midnight"); // текущая метка времени
 $date_deadline = date("d.m.Y",$task_deadline_ts);//дата выполнения задачи
 $days_until_deadline = floor(($task_deadline_ts - $current_ts) / 86400); //кол-во дней до даты задачи
 $projects = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"]; //массив проектов
@@ -51,86 +53,155 @@ $tasks = [
     ]
 ];
 
+//создание сессии
+session_start();
+
+//проверка наличия параметра запроса login, для показа форму ввода email и пароля
+if(isset($_GET["login"]))
+{
+    $login_form = include_template("templates/login_form.php", []);
+    $overlay = 1;
+    $modal_hidden = 1;
+}
+
+//обнуление пользовательской сессии
+require_once("templates/logout.php");
+
+if($_SERVER["REQUEST_METHOD"] == "POST")
+{
+    //переносим поля в переменную
+    $login_data = $_POST;
+    //указываем требуемые поля
+    $required_login = ["email", "password"];
+    $dict = ["email" => "Email", "password" => "Пароль"];
+    $login_errors = [];
+
+    foreach ($_POST as $key => $value) {
+        //проверяем наличие требуемых и полей и их заполнение
+        if (in_array($key, $required_login) && $value=="") {
+            $login_errors[$dict[$key]] = "Это поле надо заполнить";
+        }
+    }
+
+    //проверяем существование email и совпадение пароля
+    if ($user = searchUserByEmail($login_data["email"], $users)) {
+        if (password_verify($login_data["password"], $user["password"])) {
+            $_SESSION["user"] = $user;
+        }
+        else {
+            $login_errors[$dict["password"]] = "Неверный пароль";
+        }
+    }
+    else {
+        if ($login_data["email"]=="")
+        {$login_errors[$dict[$key]] = "Это поле надо заполнить";}
+        else
+        {$login_errors[$dict["email"]] = "Такой пользователь не найден";}
+    }
+
+    //если есть ошибки возвращаем форму с сохраненными параметрами
+    if (count($login_errors)) {
+        $login_form = include_template("templates/login_form.php", ["login_data" => $_POST, "login_errors" => $login_errors]);
+        $overlay = 1;
+        $modal_hidden = 1;
+    }
+}
+
 //проверка существования идентификатора
-if(isset($_GET['project_id']))
-{    $current_project = [];
-    $project_id = $_GET['project_id'];
+if(isset($_GET["project_id"]))
+{
+    $current_project = [];
+    $project_id = $_GET["project_id"];
     foreach ($tasks as $value) {
         //если идентификатор совпал, то переносим все данные категории в отдельный массив
         if (($value["category"] == $projects[$project_id]) || ($project_id == 0)){
             array_push($current_project, $value);
         }
     }
-    
 }
 
 //если идентификатора не существует возвращаем код ответа 404
 foreach ($projects as $key=>$value)
 {
-    if($_GET['project_id']!=$key){
+    if($_GET["project_id"]!=$key){
         http_response_code(404);
     }
 }
 
 //вывод шаблона формы
-if (isset($_GET['add']))
+if (isset($_GET["add"]))
 {
-    $form = include_template("templates/template_form.php", []);
+    $add_form = include_template("templates/add_from.php", []);
+    $overlay = 1;
+    $modal_hidden = 1;
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST')
+if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
-    //переносим поля в переменную
-    $task = $_POST;
-    //указываем требуемые поля
-    $required = ['title', 'category', 'deadline_date'];
-    $dict = ['title' => 'Название', 'category' => 'Проект', 'deadline_date' => 'Дата выполнения'];
-    $errors = [];
-    foreach ($_POST as $key => $value) {
-        //проверяем наличие требуемых и полей и их заполнение
-        if (in_array($key, $required) && $value=="") {
-            $errors[$dict[$key]] = 'Это поле надо заполнить';
+    if (!isset($_POST["email"]))
+    {
+        //переносим поля в переменную
+        $task = $_POST;
+        //указываем требуемые поля
+        $required_add = ["title", "category", "deadline_date"];
+        $dict = ["title" => "Название", "category" => "Проект", "deadline_date" => "Дата выполнения"];
+        $task_errors = [];
+        foreach ($_POST as $key => $value) {
+            //проверяем наличие требуемых и полей и их заполнение
+            if (in_array($key, $required_add) && $value=="") {
+                $task_errors[$dict[$key]] = "Это поле надо заполнить";
+            }
         }
-    }
 
-    // Проверка существования файла и его загрузка
-    if (isset($_FILES['preview']['name']))
-    {
-        $tmp_name = $_FILES['preview']['tmp_name'];
-        $path = $_FILES['preview']['name'];
-        move_uploaded_file($tmp_name, './' . $path);
-    }
-
-    //преобразование даты к единому формату
-    foreach($task as $key => $arg)
-    {
-        if($key == "deadline_date")
+        // Проверка существования файла и его загрузка
+        if (isset($_FILES["preview"]["name"]))
         {
-            $task[$key] = date("d.m.Y", strtotime($task[$key]));
+            $tmp_name = $_FILES["preview"]["tmp_name"];
+            $path = $_FILES["preview"]["name"];
+            move_uploaded_file($tmp_name, "./" . $path);
         }
-    }
 
-    //если есть ошибки возвращаем форму с сохраненными параметрами
-    if (count($errors)) {
-        $form = include_template('templates/template_form.php', ['$task' => $task, 'errors' => $errors]);
-        $overlay = 1;
-    }
-    //если нет то в форму задач добавляем новую задачу в начало массива tasks
-    else {
-        array_unshift($tasks, $task);
+        //преобразование даты к единому формату
+        foreach($task as $key => $arg)
+        {
+            if($key == "deadline_date")
+            {
+                $task[$key] = date("d.m.Y", strtotime($task[$key]));
+            }
+        }
+
+        //если есть ошибки возвращаем форму с сохраненными параметрами
+        if (count($task_errors)) {
+            $add_form = include_template("templates/add_from.php", ["$task" => $task, "task_errors" => $task_errors]);
+            $overlay = 1;
+            $modal_hidden = 1;
+        }
+        //если нет то в форму задач добавляем новую задачу в начало массива tasks
+        else {
+            array_unshift($tasks, $task);
+            $overlay = 0;
+            $modal_hidden = 0;
+        }
     }
 }
 
-
+//вывод поля задач
 $page_content = include_template("templates/index.php", ["tasks" => isset($current_project)?$current_project:$tasks]);
-$layout_content = include_template("templates/layout.php", [
+//вывод страница
+//при отсутсвии сессии с данными пользователя отображается стартовая страница
+$layout_content = include_template(isset($_SESSION["user"])?"templates/layout.php":"templates/guest.php", [
 "content_main" => $page_content,
-"form" => isset($form)?$form:"",
+"add_form" => isset($add_form)?$add_form:"",
+"login_form" => isset($login_form)?$login_form:"",
 "projects" => $projects,
 "tasks" => $tasks,
-"username" => "Эрик",
+//отображение имени пользователя с на основании данных из сессии
+"username" => $_SESSION["user"]["name"],
 "title" => "Дела в порядке",
-"overlay" => (isset($_GET['add']) || ($overlay == 1)) ?"overlay":""
+//отображение оверлея body при открытой форме
+"overlay" => ($overlay == 1) ?"overlay":"",
+//отображение формы
+"modal_hidden" => ($modal_hidden == 1)?"":"hidden"
 ]);
 
 print($layout_content);
