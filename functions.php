@@ -37,7 +37,6 @@ function include_template($template_dir, $template_data)
 *
 * @return int
 */
-
 function category_count($tasks, $project_name)
 {
     $count = 0;//счетчик задач
@@ -51,5 +50,26 @@ function category_count($tasks, $project_name)
     }
 
     return $count;
+}
+
+/**
+* Сравнения введенного email со значениями в массиве с данными пользователей
+*
+* @param string $email список задач
+* @param array $users название проекта
+*
+* @return array
+*/
+function searchUserByEmail($email, $users) 
+{
+    $result = null;
+    foreach ($users as $user) {
+        if ($user["email"] == $email) {
+            $result = $user;
+            break;
+        }
+    }
+
+    return $result;
 }
 ?>
