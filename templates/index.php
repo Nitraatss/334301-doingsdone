@@ -16,8 +16,9 @@
     </nav>
 
     <label class="checkbox">
-        <a href="/">
-            <input class="checkbox__input visually-hidden" type="checkbox">
+        <!-- присваивание параметра при нажатии на чекбокс -->
+        <a href="/index.php?show_completed=checked">
+            <input class="checkbox__input visually-hidden" type="checkbox" <?= $check ?>>
             <span class="checkbox__text">Показывать выполненные</span>
         </a>
     </label>
@@ -25,8 +26,15 @@
 
 <table class="tasks">
     <?php foreach ($tasks as $key2 => $value2): ?>
+
     <tr
-    class = "tasks__item task <?php if($value2["is_done"]=="Да"): ?> task--completed <?php endif ?>"
+    class = "tasks__item task <?php if($value2["is_done"]==true): ?> task--completed <?php endif ?>"
+    <?php 
+        if($value2["is_done"]==true)
+        {print("hidden");}
+        if ($value2["is_done"]==true && $check=="checked")
+        {print("hidden");}
+    ?>
     >
         <td class="task__select">
             <label class="checkbox task__checkbox">

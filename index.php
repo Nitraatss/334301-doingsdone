@@ -185,8 +185,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     }
 }
 
+//параметр поумолчанию для чекбокса 
+$_SESSION["check"] = "";
+
+//при налаичии параметра в запросе по нажатию на чекбокс выполняем
+if (isset($_GET["show_completed"]))
+{
+    //параметры cookie
+    $name_cookie = "CheckCookie";
+    $expire_cookie = strtotime("+30 days");
+    $path_cookie = "/";
+    $cookie_value = $_GET["show_completed"];
+
+    //если cookie не существует, создаем
+    if (!isset($_COOKIE["CheckCookie"]))
+    {
+        setcookie($name_cookie, json_encode($cookie_value), $expire_cookie, $path_cookie);
+    }
+    //если существует, то удаляем, чтобы снять отметку
+    else
+    {
+        setcookie($name_cookie, json_encode($cookie_value), time()-3600, $path_cookie);
+    }
+    //
+    header("location: /");
+}
+
+//если cookie сущетсует, то присваиваем параметру значение отметки в чекбоксе
+if (isset($_COOKIE["CheckCookie"]))
+{
+    $_SESSION["check"] = "checked";
+}
+//если не существует, то снимаем отметку
+else
+{
+    $_SESSION["check"] = "";
+}
+
 //вывод поля задач
-$page_content = include_template("templates/index.php", ["tasks" => isset($current_project)?$current_project:$tasks]);
+$page_content = include_template("templates/index.php", [
+"tasks" => isset($current_project)?$current_project:$tasks,
+"check" => $_SESSION["check"]
+]);
 //вывод страница
 //при отсутсвии сессии с данными пользователя отображается стартовая страница
 $layout_content = include_template(isset($_SESSION["user"])?"templates/layout.php":"templates/guest.php", [
