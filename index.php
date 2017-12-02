@@ -1,6 +1,10 @@
 <?php
+//создание сессии
+session_start();
+
 require_once("functions.php");
 require_once("userdata.php");
+require_once("init.php");
 
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
@@ -52,9 +56,6 @@ $tasks = [
         "is_done" => false
     ]
 ];
-
-//создание сессии
-session_start();
 
 //проверка наличия параметра запроса login, для показа форму ввода email и пароля
 if(isset($_GET["login"]))
@@ -185,7 +186,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     }
 }
 
-//параметр поумолчанию для чекбокса 
+//параметр по умолчанию для чекбокса 
 $_SESSION["check"] = "";
 
 //при налаичии параметра в запросе по нажатию на чекбокс выполняем
@@ -227,9 +228,12 @@ $page_content = include_template("templates/index.php", [
 "tasks" => isset($current_project)?$current_project:$tasks,
 "check" => $_SESSION["check"]
 ]);
-//вывод страница
+
+//вывод страницы
 //при отсутсвии сессии с данными пользователя отображается стартовая страница
-$layout_content = include_template(isset($_SESSION["user"])?"templates/layout.php":"templates/guest.php", [
+$layout_content_template = isset($_SESSION["user"])?"templates/layout.php":"templates/guest.php";
+
+$layout_content = include_template($layout_content_template, [
 "content_main" => $page_content,
 "add_form" => isset($add_form)?$add_form:"",
 "login_form" => isset($login_form)?$login_form:"",
