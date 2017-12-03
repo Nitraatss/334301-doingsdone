@@ -1,4 +1,6 @@
 <?php
+require_once("init.php");
+
 /**
 * Функция шаблонизатор
 *
