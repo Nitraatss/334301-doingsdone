@@ -55,7 +55,7 @@ INSERT INTO tasks
 SET title = 'Встреча с другом',
 deadline_date = '2018-04-22',
 is_done = 0,
-project_id = 2;
+project_id = 2,
 user_id = 2;
 
 INSERT INTO tasks 

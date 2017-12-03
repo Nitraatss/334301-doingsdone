@@ -8,12 +8,9 @@ require_once("init.php");
 * @param array $templateData массив с данными для этого шаблона
 *
 */
-function include_template($template_dir, $template_data)
-{
-    if (file_exists($template_dir))
-    {
-        foreach($template_data as $key => $value)
-        {
+function include_template($template_dir, $template_data) {
+    if (file_exists($template_dir)) {
+        foreach($template_data as $key => $value) {
             ${$key} = $value;
         }
 
@@ -25,8 +22,7 @@ function include_template($template_dir, $template_data)
         return $template;
     }
 
-    else
-    {
+    else {
         return("");
     }
 }
@@ -39,13 +35,12 @@ function include_template($template_dir, $template_data)
 *
 * @return int
 */
-function category_count($tasks, $project_name)
-{
-    $count = 0;//счетчик задач
+function category_count($tasks, $project_name, $projects) {
+    // счетчик задач
+    $count = 0;
     
-    foreach($tasks as $task)
-    {
-        if($project_name === "Все" || $task["category"] === $project_name)
+    foreach($tasks as $key => $task) {
+        if($project_name === "Все" || $projects[$task["project_id"]] === $project_name)
         {
             $count++;
         }
@@ -57,14 +52,14 @@ function category_count($tasks, $project_name)
 /**
 * Сравнения введенного email со значениями в массиве с данными пользователей
 *
-* @param string $email список задач
+* @param string $email вводимый email
 * @param array $users название проекта
 *
 * @return array
 */
-function searchUserByEmail($email, $users) 
-{
+function searchUserByEmail($email, $users) {
     $result = null;
+
     foreach ($users as $user) {
         if ($user["email"] == $email) {
             $result = $user;
