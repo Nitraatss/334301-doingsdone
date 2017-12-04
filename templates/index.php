@@ -1,4 +1,3 @@
-
 <h2 class="content__main-heading">Список задач</h2>
 
 <form class="search-form" action="index.html" method="post">
@@ -39,7 +38,7 @@
         <td class="task__select">
             <label class="checkbox task__checkbox">
             <input class="checkbox__input visually-hidden" type="checkbox">
-            <a href="/"><span class="checkbox__text"><?= $value2["title"] ?></span></a>
+            <a href="/index.php?changestatus=<?= $key2 ?>"><span class="checkbox__text"><?= $value2["title"] ?></span></a>
             </label>
         </td>
         <td class="task__file">

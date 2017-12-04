@@ -48,7 +48,7 @@
                         <!--формируем адрес ссылки-->
                         <a class="main-navigation__list-item-link" href="<?= "index.php?project_id=" . $key ?>"> <?= $value ?></a>
                         <span class="main-navigation__list-item-count">
-                            <?= category_count($tasks, $value) ?>
+                            <?= category_count($tasks, $value, $projects) ?>
                         </span>
                     </li>
                     <?php endforeach; ?>

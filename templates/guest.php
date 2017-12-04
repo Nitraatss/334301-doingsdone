@@ -34,7 +34,7 @@
                         <p>После создания аккаунта, пользователь может начать вносить свои дела, деля их по проектам и указывая сроки.</p>
                     </div>
 
-                    <a class="welcome__button button" href="#">Зарегистрироваться</a>
+                    <a class="welcome__button button" href="\index.php?register=true">Зарегистрироваться</a>
                 </section>
             </div>
         </div>
@@ -81,7 +81,7 @@
 
     <div class="modal" <?= $modal_hidden ?>>
     <!--Вывод формы логина-->
-     <?= $login_form ?>    
+     <?= $login_form ?>
     </div>
 </body>
 </html>
