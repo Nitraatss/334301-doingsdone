@@ -5,10 +5,12 @@ session_start();
 require_once("functions.php");
 require_once("init.php");
 
-//задачи пользователя
+// задачи пользователя
 $tasks;
-//категории задач
+// категории задач
 $projects;
+// текущая дата
+$current_date;
 
 // получение данных о пользователях
 $sql_request = "SELECT email, username, pass FROM users";
@@ -29,18 +31,22 @@ if ($_SESSION["user"]) {
     $result = mysqli_query($db_link, $sql_request);
     $user_id = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
-    $sql_request = "SELECT title, deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'];
+    $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'];
     $result = mysqli_query($db_link, $sql_request);
     $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    $sql_request = "SELECT DATE_FORMAT(CURDATE() , '%d.%m.%Y')";
+    $result = mysqli_query($db_link, $sql_request);
+    $curent_day = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
+    foreach ($curent_day as $value) {
+        $current_date = $value;	
+    }
+
 }
 
 // устанавливаем часовой пояс в Московское время
 date_default_timezone_set("Europe/Moscow");
-$days = rand(-3, 3);
-$task_deadline_ts = strtotime("+" . $days . " day midnight"); // метка времени даты выполнения задачи
-$current_ts = strtotime("now midnight"); // текущая метка времени
-$date_deadline = date("d.m.Y",$task_deadline_ts);//дата выполнения задачи
-$days_until_deadline = floor(($task_deadline_ts - $current_ts) / 86400); //кол-во дней до даты задачи
 
 // проверка наличия параметра запроса login, для показа формы ввода email и пароля
 if (isset($_GET["login"])) {
@@ -63,6 +69,33 @@ if (isset($_GET["project_id"])) {
         if (($projects[$value["project_id"]] == $projects[$project_id]) || ($project_id == 0)) {
             array_push($current_project, $value);
         }
+    }
+}
+
+// отображение отдельных задач
+// массив для задач с условиями
+$specific_tasks;
+
+if (isset($_GET["task_switch"])) {
+    // задачи на сегодня
+    if ($_GET["task_switch"]=='today') {
+        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'] . " AND deadline_date = CURDATE()";
+        $result = mysqli_query($db_link, $sql_request);
+        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+
+    // задачи на завтра
+    if ($_GET["task_switch"]=='tomorrow') {
+        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'] . " AND deadline_date = ADDDATE(CURDATE(), INTERVAL 1 DAY);";
+        $result = mysqli_query($db_link, $sql_request);
+        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);	
+    }
+    
+    // просроченные задачи
+    if ($_GET["task_switch"]=='wasted') {
+        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'] . " AND deadline_date < CURDATE()";
+        $result = mysqli_query($db_link, $sql_request);
+        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);	
     }
 }
 
@@ -148,7 +181,9 @@ else
 // вывод поля задач
 $page_content = include_template("templates/index.php", [
 "tasks" => isset($current_project)?$current_project:$tasks,
-"check" => $_SESSION["check"]
+"check" => $_SESSION["check"],
+"current_date" => $current_date,
+"specific_tasks" => $specific_tasks
 ]);
 
 $registration_form;
