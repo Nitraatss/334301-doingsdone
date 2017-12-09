@@ -1,0 +1,7 @@
+{
+    "name": "mercy/334301-doingsdone",
+    "type": "library",
+    "require": {
+        "swiftmailer/swiftmailer": "^6.0"
+    }
+}

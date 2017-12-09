@@ -1,4 +1,5 @@
 <?php
+require_once("vendor/autoload.php");
 $db_host = "localhost";
 $db_login = "root";
 $db_password = "";

@@ -1,5 +1,6 @@
 <?php
 require_once("init.php");
+require_once("vendor/autoload.php");
 
 /**
 * Функция шаблонизатор
@@ -18,7 +19,7 @@ function include_template($template_dir, $template_data) {
         require_once($template_dir);
         $template = ob_get_contents();
         ob_end_clean();
-        
+
         return $template;
     }
 
@@ -38,7 +39,7 @@ function include_template($template_dir, $template_data) {
 function category_count($tasks, $project_name, $projects) {
     // счетчик задач
     $count = 0;
-    
+
     foreach($tasks as $key => $task) {
         if($project_name === "Все" || $projects[$task["project_id"]] === $project_name)
         {

@@ -15,12 +15,12 @@
 <div class="page-wrapper">
     <div class="container container--with-sidebar">
         <header class="main-header">
-            <a href="#">
+            <a href="/">
                 <img src="img/logo.png" width="153" height="42" alt="Логотип Дела в порядке">
             </a>
 
             <div class="main-header__side">
-                <a class="main-header__side-item button button--plus" href="\index.php?add=true">Добавить задачу</a>
+                <a class="main-header__side-item button button--plus" href="/?add=true">Добавить задачу</a>
 
                 <div class="main-header__side-item user-menu">
                     <div class="user-menu__image">
@@ -28,9 +28,9 @@
                     </div>
 
                     <div class="user-menu__data">
-                        <p><?= $username ?></p>
+                        <p><?= htmlspecialchars($username) ?></p>
 
-                        <a href="\index.php?logout=true">Выйти</a>
+                        <a href="/?logout=true">Выйти</a>
                     </div>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                     <?php foreach ($projects as $key => $value): ?>
                     <li class="main-navigation__list-item <?php if ($key == $_GET["project_id"] || (!isset($_GET["project_id"])&&$key==0)): ?> main-navigation__list-item--active <?php endif ?>">
                         <!--формируем адрес ссылки-->
-                        <a class="main-navigation__list-item-link" href="<?= "index.php?project_id=" . $key ?>"> <?= $value ?></a>
+                        <a class="main-navigation__list-item-link" href="<?= "/?project_id=" . $key ?>"> <?= htmlspecialchars($value) ?></a>
                         <span class="main-navigation__list-item-count">
                             <?= category_count($tasks, $value, $projects) ?>
                         </span>
@@ -55,7 +55,7 @@
                     </ul>
                 </nav>
 
-                <a class="button button--transparent button--plus content__side-button" href="#">Добавить проект</a>
+                <a class="button button--transparent button--plus content__side-button" href="/?add_project=true">Добавить проект</a>
             </section>
 
             <main class="content__main">
@@ -73,7 +73,7 @@
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
 
-        <a class="main-footer__button button button--plus" href="\index.php?add=true">Добавить задачу</a>
+        <a class="main-footer__button button button--plus" href="/?add=true">Добавить задачу</a>
 
         <div class="main-footer__social social">
             <span class="visually-hidden">Мы в соцсетях:</span>
@@ -105,26 +105,8 @@
 </footer>
 
 <div class="modal" <?= $modal_hidden ?>>
-    <!--Вывод формы добаления задачи-->
-    <?= $add_form ?>  
-</form>
-
-<div class="modal" hidden>
-    <button class="modal__close" type="button" name="button">Закрыть</button>
-
-    <h2 class="modal__heading">Добавление проекта</h2>
-
-    <form class="form"  action="index.html" method="post">
-        <div class="form__row">
-            <label class="form__label" for="project_name">Название <sup>*</sup></label>
-
-            <input class="form__input" type="text" name="name" id="project_name" value="" placeholder="Введите название проекта">
-        </div>
-
-        <div class="form__row form__row--controls">
-            <input class="button" type="submit" name="" value="Добавить">
-        </div>
-    </form>
+    <!--Вывод формы добаления задачи или проекта-->
+    <?= $add_form ?>
 </div>
 </body>
 </html>

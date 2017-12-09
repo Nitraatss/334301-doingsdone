@@ -3,12 +3,14 @@
 session_start();
 
 require_once("functions.php");
+require_once("mysql_helper.php");
 require_once("init.php");
+require_once("vendor/autoload.php");
 
 // задачи пользователя
 $tasks;
 // категории задач
-$projects;
+$projects = ["Все"];
 // текущая дата
 $current_date;
 
@@ -17,36 +19,37 @@ $sql_request = "SELECT email, username, pass FROM users";
 $result = mysqli_query($db_link, $sql_request);
 $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-// создание массива с категориями проектов
-$sql_request = "SELECT category FROM projects";
-$result = mysqli_query($db_link, $sql_request);
-$categories = mysqli_fetch_all($result, MYSQLI_ASSOC);
-foreach($categories as $key => $value) {
-    $projects[$key] = $value[category];
-}
-
 if ($_SESSION["user"]) {
-    // создание массива с задачами для пользователя
     $sql_request = "SELECT id FROM users WHERE username = '" . $_SESSION["user"]["username"] . "'";
     $result = mysqli_query($db_link, $sql_request);
     $user_id = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
-    $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'];
+    // создание массива с категориями проектов
+    $sql_request = "SELECT category FROM projects WHERE user_id = " . $user_id['id'];
+    $result = mysqli_query($db_link, $sql_request);
+    $categories = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    foreach($categories as $key => $value) {
+        array_push($projects, $value[category]);
+    }
+
+    // создание массива с задачами для пользователя
+    $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id, file_path FROM tasks WHERE user_id = " . $user_id['id'];
     $result = mysqli_query($db_link, $sql_request);
     $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
+    // получение текущей даты
     $sql_request = "SELECT DATE_FORMAT(CURDATE() , '%d.%m.%Y')";
     $result = mysqli_query($db_link, $sql_request);
     $curent_day = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
     foreach ($curent_day as $value) {
-        $current_date = $value;	
+        $current_date = $value;
     }
-
 }
 
-// устанавливаем часовой пояс в Московское время
-date_default_timezone_set("Europe/Moscow");
+$overlay;
+$modal_hidden;
+$login_form;
 
 // проверка наличия параметра запроса login, для показа формы ввода email и пароля
 if (isset($_GET["login"])) {
@@ -58,12 +61,14 @@ if (isset($_GET["login"])) {
 // обнуление пользовательской сессии при нажатии на Выход
 require_once("templates/logout.php");
 
+$current_project;
+
 // отображение задач одной категории
 // проверка существования идентификатора
 if (isset($_GET["project_id"])) {
     $current_project = [];
     $project_id = $_GET["project_id"];
-    
+
     foreach ($tasks as $value) {
         // если идентификатор совпал, то переносим все данные категории в отдельный массив
         if (($projects[$value["project_id"]] == $projects[$project_id]) || ($project_id == 0)) {
@@ -88,35 +93,44 @@ if (isset($_GET["task_switch"])) {
     if ($_GET["task_switch"]=='tomorrow') {
         $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'] . " AND deadline_date = ADDDATE(CURDATE(), INTERVAL 1 DAY);";
         $result = mysqli_query($db_link, $sql_request);
-        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);	
+        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
-    
+
     // просроченные задачи
     if ($_GET["task_switch"]=='wasted') {
         $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'] . " AND deadline_date < CURDATE()";
         $result = mysqli_query($db_link, $sql_request);
-        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);	
+        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 }
 
-// если идентификатора не существует возвращаем код ответа 404
-foreach ($projects as $key=>$value) {
-    if ($_GET["project_id"]!=$key) {
-        http_response_code(404);
-    }
-}
+$add_form;
 
 // вывод шаблона формы добавления задачи при нажатии на кнопку добавить задачу
 if (isset($_GET["add"])) {
-    $add_form = include_template("templates/add_from.php", []);
+    $add_form = include_template("templates/add_from.php", ["projects" => $projects]);
     $overlay = 1;
     $modal_hidden = 1;
 }
 
-// проверка форм отправки данных
-require_once("form_post.php");
+// вывод шаблона формы добавления проекта при нажатии на кнопку добавить проект
+if (isset($_GET["add_project"])) {
+    $add_form = include_template("templates/add_project_form.php", []);
+    $overlay = 1;
+    $modal_hidden = 1;
+}
 
-// параметр по умолчанию для чекбокса 
+// получение данных из форм
+// добавление задачи
+require_once("add_task.php");
+// добавление проекта
+require_once("add_project.php");
+// регистрация и авторизация
+require_once("reg_auth.php");
+// поиск
+require_once("search.php");
+
+// параметр по умолчанию для чекбокса
 $_SESSION["check"] = "";
 
 // при налаичии параметра в запросе по нажатию на чекбокс выполняем
@@ -142,32 +156,32 @@ if (isset($_GET["show_completed"])) {
 // смена статуса по клику на задачу
 if (isset($_GET["changestatus"]))
 {
-    $a =  $_GET["changestatus"];
+    $change_stat =  $_GET["changestatus"];
 
     foreach ($tasks as $key => $value)
     {
-        if ($a == $key)
+        if ($change_stat == $key)
         {
             if ($value['is_done'] == 0)
             {
             $sql_request = "UPDATE tasks SET is_done = 1 WHERE title = '". $value['title'] ."' AND user_id = " . $user_id['id'] . " AND id = " . $value['id'] . "";
             mysqli_query($db_link, $sql_request);
-            
+
             }
             else
             {
              $sql_request = "UPDATE tasks SET is_done = 0 WHERE title = '". $value['title'] ."'";
              mysqli_query($db_link, $sql_request);
             }
-            
+
         }
-        
+
     }
 
     header("location: /");
 }
 
-// если cookie сущетсует, то присваиваем параметру значение отметки в чекбоксе
+// если cookie существует, то присваиваем параметру значение отметки в чекбоксе
 if (isset($_COOKIE["CheckCookie"]))
 {
     $_SESSION["check"] = "checked";
@@ -176,6 +190,13 @@ if (isset($_COOKIE["CheckCookie"]))
 else
 {
     $_SESSION["check"] = "";
+}
+
+// проверка выбранного проекта в меню слева. если проекта не существует возвращаем код ответа 404
+if (isset ($_GET["project_id"])) {
+    if(!isset($projects[$_GET["project_id"]])) {
+        http_response_code(404);
+    }
 }
 
 // вывод поля задач
@@ -187,6 +208,7 @@ $page_content = include_template("templates/index.php", [
 ]);
 
 $registration_form;
+
 // отображение формы регистрации
 if ($_GET["register"] == "true") {
     $registration_form = include_template("templates/register_form.php", []);
@@ -196,6 +218,7 @@ else {
 }
 
 $layout_content_template;
+
 // отображение страницы регистрации
 if (isset($_GET["register"])) {
     $layout_content_template = "templates/register.php";

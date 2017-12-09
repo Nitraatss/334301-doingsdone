@@ -20,7 +20,7 @@
 
                 <div class="main-header__side">
                     <!--Присвоение параметра login-->
-                    <a class="main-header__side-item button button--transparent" href="\index.php?login=true">Войти</a>
+                    <a class="main-header__side-item button button--transparent" href="/?login=true">Войти</a>
                 </div>
             </header>
 
@@ -34,7 +34,7 @@
                         <p>После создания аккаунта, пользователь может начать вносить свои дела, деля их по проектам и указывая сроки.</p>
                     </div>
 
-                    <a class="welcome__button button" href="\index.php?register=true">Зарегистрироваться</a>
+                    <a class="welcome__button button" href="/?register=true">Зарегистрироваться</a>
                 </section>
             </div>
         </div>
