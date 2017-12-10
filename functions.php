@@ -23,9 +23,7 @@ function include_template($template_dir, $template_data) {
         return $template;
     }
 
-    else {
-        return("");
-    }
+    return("");
 }
 
 /**

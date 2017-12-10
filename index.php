@@ -82,25 +82,74 @@ if (isset($_GET["project_id"])) {
 $specific_tasks;
 
 if (isset($_GET["task_switch"])) {
+
     // задачи на сегодня
-    if ($_GET["task_switch"]=='today') {
-        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'] . " AND deadline_date = CURDATE()";
-        $result = mysqli_query($db_link, $sql_request);
-        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    if ($_GET["task_switch"] == "today") {
+        $specific_tasks = [];
+
+        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path FROM tasks WHERE user_id = ? AND deadline_date = CURDATE()";
+        $stmt = mysqli_prepare($db_link, $sql_request);
+        mysqli_stmt_bind_param($stmt, "i", $user_id["id"]);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path);
+
+        while (mysqli_stmt_fetch($stmt)) {
+            $single_task_data = [
+                "title" => $t_title,
+                "deadline_date" => $t_date,
+                "project_id" => $pr_id,
+                "is_done" => $is_done,
+                "file_path" => $file_path
+            ];
+
+            array_push($specific_tasks, $single_task_data);
+        }
     }
 
     // задачи на завтра
-    if ($_GET["task_switch"]=='tomorrow') {
-        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'] . " AND deadline_date = ADDDATE(CURDATE(), INTERVAL 1 DAY);";
-        $result = mysqli_query($db_link, $sql_request);
-        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    if ($_GET["task_switch"] == "tomorrow") {
+        $specific_tasks = [];
+
+        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path FROM tasks WHERE user_id = ? AND deadline_date = ADDDATE(CURDATE(), INTERVAL 1 DAY);";
+        $stmt = mysqli_prepare($db_link, $sql_request);
+        mysqli_stmt_bind_param($stmt, "i", $user_id["id"]);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path);
+
+        while (mysqli_stmt_fetch($stmt)) {
+            $single_task_data = [
+                "title" => $t_title,
+                "deadline_date" => $t_date,
+                "project_id" => $pr_id,
+                "is_done" => $is_done,
+                "file_path" => $file_path
+            ];
+
+            array_push($specific_tasks, $single_task_data);
+        }
     }
 
     // просроченные задачи
     if ($_GET["task_switch"]=='wasted') {
-        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, id FROM tasks WHERE user_id = " . $user_id['id'] . " AND deadline_date < CURDATE()";
-        $result = mysqli_query($db_link, $sql_request);
-        $specific_tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $specific_tasks = [];
+
+        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path FROM tasks WHERE user_id = ? AND deadline_date < CURDATE()";
+        $stmt = mysqli_prepare($db_link, $sql_request);
+        mysqli_stmt_bind_param($stmt, "i", $user_id["id"]);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path);
+
+        while (mysqli_stmt_fetch($stmt)) {
+            $single_task_data = [
+                "title" => $t_title,
+                "deadline_date" => $t_date,
+                "project_id" => $pr_id,
+                "is_done" => $is_done,
+                "file_path" => $file_path
+            ];
+
+            array_push($specific_tasks, $single_task_data);
+        }
     }
 }
 
@@ -151,6 +200,7 @@ if (isset($_GET["show_completed"])) {
     }
 
     header("location: /");
+    exit;
 }
 
 // смена статуса по клику на задачу
@@ -162,16 +212,14 @@ if (isset($_GET["changestatus"]))
     {
         if ($change_stat == $key)
         {
-            if ($value['is_done'] == 0)
-            {
-            $sql_request = "UPDATE tasks SET is_done = 1 WHERE title = '". $value['title'] ."' AND user_id = " . $user_id['id'] . " AND id = " . $value['id'] . "";
-            mysqli_query($db_link, $sql_request);
+            if ($value['is_done'] == 0) {
+                $sql_request = "UPDATE tasks SET is_done = 1 WHERE title = '". $value['title'] ."' AND user_id = " . $user_id['id'] . " AND id = " . $value['id'] . "";
+                mysqli_query($db_link, $sql_request);
 
             }
-            else
-            {
-             $sql_request = "UPDATE tasks SET is_done = 0 WHERE title = '". $value['title'] ."'";
-             mysqli_query($db_link, $sql_request);
+            else {
+                $sql_request = "UPDATE tasks SET is_done = 0 WHERE title = '". $value['title'] ."'";
+                mysqli_query($db_link, $sql_request);
             }
 
         }
@@ -179,6 +227,7 @@ if (isset($_GET["changestatus"]))
     }
 
     header("location: /");
+    exit;
 }
 
 // если cookie существует, то присваиваем параметру значение отметки в чекбоксе
@@ -201,10 +250,10 @@ if (isset ($_GET["project_id"])) {
 
 // вывод поля задач
 $page_content = include_template("templates/index.php", [
-"tasks" => isset($current_project)?$current_project:$tasks,
-"check" => $_SESSION["check"],
-"current_date" => $current_date,
-"specific_tasks" => $specific_tasks
+    "tasks" => isset($current_project)?$current_project:$tasks,
+    "check" => $_SESSION["check"],
+    "current_date" => $current_date,
+    "specific_tasks" => $specific_tasks
 ]);
 
 $registration_form;
@@ -229,19 +278,19 @@ else {
 }
 
 $layout_content = include_template($layout_content_template, [
-"content_main" => $page_content,
-"add_form" => isset($add_form)?$add_form:"",
-"login_form" => isset($login_form)?$login_form:"",
-"registration_form" => isset($registration_form)?$registration_form:"",
-"projects" => $projects,
-"tasks" => $tasks,
-// отображение имени пользователя с на основании данных из сессии
-"username" => $_SESSION["user"]["username"],
-"title" => "Дела в порядке",
-// отображение оверлея body при открытой форме
-"overlay" => ($overlay == 1) ?"overlay":"",
-// отображение формы
-"modal_hidden" => ($modal_hidden == 1)?"":"hidden"
+    "content_main" => $page_content,
+    "add_form" => isset($add_form)?$add_form:"",
+    "login_form" => isset($login_form)?$login_form:"",
+    "registration_form" => isset($registration_form)?$registration_form:"",
+    "projects" => $projects,
+    "tasks" => $tasks,
+    // отображение имени пользователя с на основании данных из сессии
+    "username" => $_SESSION["user"]["username"],
+    "title" => "Дела в порядке",
+    // отображение оверлея body при открытой форме
+    "overlay" => ($overlay == 1) ?"overlay":"",
+    // отображение формы
+    "modal_hidden" => ($modal_hidden == 1)?"":"hidden"
 ]);
 
 print($layout_content);

@@ -62,10 +62,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // формируем запрос
             $sql_request = "INSERT INTO tasks (title, project_id, deadline_date, user_id, file_path, creation_date, is_done) VALUES (?, ?, ?, ?, ?, CURDATE(), 0)";
             $stmt = mysqli_prepare($db_link, $sql_request);
-            mysqli_stmt_bind_param($stmt, 'sisis', $task["title"], $pr_id, $date, $user_id['id'], $destination);
+            mysqli_stmt_bind_param($stmt, "sisis", $task["title"], $pr_id, $date, $user_id["id"], $destination);
             mysqli_stmt_execute($stmt);
 
-            header('location: /');
+            header("location: /");
         }
     }
 }
