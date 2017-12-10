@@ -68,4 +68,37 @@ function searchUserByEmail($email, $users) {
 
     return $result;
 }
+
+/**
+* Получение задач в зависимости от выбранного фильтра
+*
+* @param $db_link ресурс соединения
+* @param string $sql_request запрос в БД
+* @param integer $user_id id пользователя
+*
+* @return array
+*/
+function filter_tasks ($db_link, $sql_request, $user_id)
+{
+    $fliter_tasks = [];
+
+    $stmt = mysqli_prepare($db_link, $sql_request);
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path);
+
+    while (mysqli_stmt_fetch($stmt)) {
+        $single_task_data = [
+            "title" => $t_title,
+            "deadline_date" => $t_date,
+            "project_id" => $pr_id,
+            "is_done" => $is_done,
+            "file_path" => $file_path
+        ];
+
+        array_push($fliter_tasks, $single_task_data);
+    }
+    return ($fliter_tasks);
+}
+
 ?>

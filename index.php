@@ -85,71 +85,20 @@ if (isset($_GET["task_switch"])) {
 
     // задачи на сегодня
     if ($_GET["task_switch"] == "today") {
-        $specific_tasks = [];
-
         $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path FROM tasks WHERE user_id = ? AND deadline_date = CURDATE()";
-        $stmt = mysqli_prepare($db_link, $sql_request);
-        mysqli_stmt_bind_param($stmt, "i", $user_id["id"]);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path);
-
-        while (mysqli_stmt_fetch($stmt)) {
-            $single_task_data = [
-                "title" => $t_title,
-                "deadline_date" => $t_date,
-                "project_id" => $pr_id,
-                "is_done" => $is_done,
-                "file_path" => $file_path
-            ];
-
-            array_push($specific_tasks, $single_task_data);
-        }
+        $specific_tasks = filter_tasks ($db_link, $sql_request, $user_id["id"]);
     }
 
     // задачи на завтра
     if ($_GET["task_switch"] == "tomorrow") {
-        $specific_tasks = [];
-
         $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path FROM tasks WHERE user_id = ? AND deadline_date = ADDDATE(CURDATE(), INTERVAL 1 DAY);";
-        $stmt = mysqli_prepare($db_link, $sql_request);
-        mysqli_stmt_bind_param($stmt, "i", $user_id["id"]);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path);
-
-        while (mysqli_stmt_fetch($stmt)) {
-            $single_task_data = [
-                "title" => $t_title,
-                "deadline_date" => $t_date,
-                "project_id" => $pr_id,
-                "is_done" => $is_done,
-                "file_path" => $file_path
-            ];
-
-            array_push($specific_tasks, $single_task_data);
-        }
+        $specific_tasks = filter_tasks ($db_link, $sql_request, $user_id["id"]);
     }
 
     // просроченные задачи
     if ($_GET["task_switch"]=='wasted') {
-        $specific_tasks = [];
-
         $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path FROM tasks WHERE user_id = ? AND deadline_date < CURDATE()";
-        $stmt = mysqli_prepare($db_link, $sql_request);
-        mysqli_stmt_bind_param($stmt, "i", $user_id["id"]);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path);
-
-        while (mysqli_stmt_fetch($stmt)) {
-            $single_task_data = [
-                "title" => $t_title,
-                "deadline_date" => $t_date,
-                "project_id" => $pr_id,
-                "is_done" => $is_done,
-                "file_path" => $file_path
-            ];
-
-            array_push($specific_tasks, $single_task_data);
-        }
+        $specific_tasks = filter_tasks ($db_link, $sql_request, $user_id["id"]);
     }
 }
 
