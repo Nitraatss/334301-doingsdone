@@ -41,7 +41,7 @@
         <td class="task__select">
             <label class="checkbox task__checkbox">
             <input class="checkbox__input visually-hidden" type="checkbox">
-            <a href="/?changestatus=<?= $key2 ?>"><span class="checkbox__text"><?= strip_tags($value2["title"]) ?></span></a>
+            <a href="/?changestatus=<?= $value2["id"] ?>"><span class="checkbox__text"><?= strip_tags($value2["title"]) ?></span></a>
             </label>
         </td>
         <td class="task__file">

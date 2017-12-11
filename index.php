@@ -85,19 +85,19 @@ if (isset($_GET["task_switch"])) {
 
     // задачи на сегодня
     if ($_GET["task_switch"] == "today") {
-        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path FROM tasks WHERE user_id = ? AND deadline_date = CURDATE()";
+        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path, id FROM tasks WHERE user_id = ? AND deadline_date = CURDATE()";
         $specific_tasks = filter_tasks ($db_link, $sql_request, $user_id["id"]);
     }
 
     // задачи на завтра
     if ($_GET["task_switch"] == "tomorrow") {
-        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path FROM tasks WHERE user_id = ? AND deadline_date = ADDDATE(CURDATE(), INTERVAL 1 DAY);";
+        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path, id FROM tasks WHERE user_id = ? AND deadline_date = ADDDATE(CURDATE(), INTERVAL 1 DAY);";
         $specific_tasks = filter_tasks ($db_link, $sql_request, $user_id["id"]);
     }
 
     // просроченные задачи
     if ($_GET["task_switch"]=='wasted') {
-        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path FROM tasks WHERE user_id = ? AND deadline_date < CURDATE()";
+        $sql_request = "SELECT title, DATE_FORMAT(deadline_date, '%d.%m.%Y') as deadline_date, project_id, is_done, file_path, id FROM tasks WHERE user_id = ? AND deadline_date < CURDATE()";
         $specific_tasks = filter_tasks ($db_link, $sql_request, $user_id["id"]);
     }
 }
@@ -155,11 +155,11 @@ if (isset($_GET["show_completed"])) {
 // смена статуса по клику на задачу
 if (isset($_GET["changestatus"]))
 {
-    $change_stat =  $_GET["changestatus"];
+    $change_stat = $_GET["changestatus"];
 
     foreach ($tasks as $key => $value)
     {
-        if ($change_stat == $key)
+        if ($change_stat == $value["id"])
         {
             if ($value['is_done'] == 0) {
                 $sql_request = "UPDATE tasks SET is_done = 1 WHERE title = '". $value['title'] ."' AND user_id = " . $user_id['id'] . " AND id = " . $value['id'] . "";

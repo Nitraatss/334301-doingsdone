@@ -91,12 +91,12 @@ function searchUserByEmail($email, $users) {
 */
 function filter_tasks ($db_link, $sql_request, $user_id)
 {
-    $fliter_tasks = [];
+    $filter_tasks = [];
 
     $stmt = mysqli_prepare($db_link, $sql_request);
     mysqli_stmt_bind_param($stmt, "i", $user_id);
     mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path);
+    mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path, $id);
 
     while (mysqli_stmt_fetch($stmt)) {
         $single_task_data = [
@@ -104,12 +104,13 @@ function filter_tasks ($db_link, $sql_request, $user_id)
             "deadline_date" => $t_date,
             "project_id" => $pr_id,
             "is_done" => $is_done,
-            "file_path" => $file_path
+            "file_path" => $file_path,
+            "id" => $id
         ];
 
-        array_push($fliter_tasks, $single_task_data);
+        array_push($filter_tasks, $single_task_data);
     }
-    return ($fliter_tasks);
+    return ($filter_tasks);
 }
 
 ?>
