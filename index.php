@@ -194,6 +194,7 @@ else
 if (isset ($_GET["project_id"])) {
     if(!isset($projects[$_GET["project_id"]])) {
         http_response_code(404);
+        header("location: /404.php");
     }
 }
 

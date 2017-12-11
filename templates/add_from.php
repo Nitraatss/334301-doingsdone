@@ -12,7 +12,7 @@
     ?>
 
         <label class="form__label" for="title">Название <sup>*</sup></label>
-        <input class="form__input <?= $class_error ?>" type="text" name="title" id="title" value="<?= htmlspecialchars($value) ?>" placeholder="Введите название">
+        <input class="form__input <?= $class_error ?>" type="text" name="title" id="title" value="<?= strip_tags($value) ?>" placeholder="Введите название">
     </div>
 
     <?php

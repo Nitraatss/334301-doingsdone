@@ -37,11 +37,22 @@ function include_template($template_dir, $template_data) {
 function category_count($tasks, $project_name, $projects) {
     // счетчик задач
     $count = 0;
-
-    foreach($tasks as $key => $task) {
-        if($project_name === "Все" || $projects[$task["project_id"]] === $project_name)
-        {
-            $count++;
+    
+    if ($_SESSION["check"] == "checked")
+    {
+        foreach($tasks as $key => $task) {
+            if($project_name === "Все" || $projects[$task["project_id"]] === $project_name)
+            {
+                $count++;
+            }
+        }
+    }
+    else {
+        foreach($tasks as $key => $task) {
+            if(($project_name === "Все" || $projects[$task["project_id"]] === $project_name) && ($task["is_done"] == 0))
+            {
+                $count++;
+            }
         }
     }
 
