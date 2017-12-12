@@ -29,7 +29,7 @@
 
     <tr
     class = "tasks__item task <?php if($value2["is_done"]==true): ?> task--completed <?php endif ?>
-    <?php if($value2["deadline_date"] < $current_date && $value2["is_done"]==false && $value2["deadline_date"]!=false): ?> task--important <?php endif ?>"
+    <?php if($value2["deadline_date"] <= $current_date && $value2["is_done"]==false && $value2["deadline_date"]!=false): ?> task--important <?php endif ?>"
 
     <?php 
         if($value2["is_done"]==true)
@@ -41,7 +41,7 @@
         <td class="task__select">
             <label class="checkbox task__checkbox">
             <input class="checkbox__input visually-hidden" type="checkbox">
-            <a href="/?changestatus=<?= $key2 ?>"><span class="checkbox__text"><?= htmlspecialchars($value2["title"]) ?></span></a>
+            <a href="/?changestatus=<?= $value2["id"] ?>"><span class="checkbox__text"><?= strip_tags($value2["title"]) ?></span></a>
             </label>
         </td>
         <td class="task__file">

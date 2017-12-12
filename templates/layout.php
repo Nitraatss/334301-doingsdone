@@ -28,7 +28,7 @@
                     </div>
 
                     <div class="user-menu__data">
-                        <p><?= htmlspecialchars($username) ?></p>
+                        <p><?= strip_tags($username) ?></p>
 
                         <a href="/?logout=true">Выйти</a>
                     </div>
@@ -46,7 +46,7 @@
                     <?php foreach ($projects as $key => $value): ?>
                     <li class="main-navigation__list-item <?php if ($key == $_GET["project_id"] || (!isset($_GET["project_id"])&&$key==0)): ?> main-navigation__list-item--active <?php endif ?>">
                         <!--формируем адрес ссылки-->
-                        <a class="main-navigation__list-item-link" href="<?= "/?project_id=" . $key ?>"> <?= htmlspecialchars($value) ?></a>
+                        <a class="main-navigation__list-item-link" href="<?= "/?project_id=" . $key ?>"> <?= strip_tags($value) ?></a>
                         <span class="main-navigation__list-item-count">
                             <?= category_count($tasks, $value, $projects) ?>
                         </span>

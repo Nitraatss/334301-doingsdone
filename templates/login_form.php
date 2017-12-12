@@ -12,7 +12,7 @@
         ?>
 
         <label class="form__label" for="email">E-mail <sup>*</sup></label>
-        <input class="form__input <?= $class_error ?>" type="text" name="email" id="email" value="<?= htmlspecialchars($value) ?>" placeholder="Введите e-mail">
+        <input class="form__input <?= $class_error ?>" type="text" name="email" id="email" value="<?= strip_tags($value) ?>" placeholder="Введите e-mail">
 
         <!--Вывод ошибки-->
         <?php if (isset($login_errors)): ?>
@@ -31,7 +31,7 @@
         ?>
 
         <label class="form__label" for="password">Пароль <sup>*</sup></label>
-        <input class="form__input <?= $class_error ?>" type="password" name="password" id="password" value="<?= htmlspecialchars($value) ?>" placeholder="Введите пароль">
+        <input class="form__input <?= $class_error ?>" type="password" name="password" id="password" value="<?= strip_tags($value) ?>" placeholder="Введите пароль">
 
         <?php if (isset($login_errors)): ?>
         <?php foreach($login_errors as $err => $val): ?>
