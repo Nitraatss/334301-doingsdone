@@ -159,7 +159,7 @@ if (isset($_GET["changestatus"]))
 
     foreach ($tasks as $key => $value)
     {
-        if ($change_stat == $value["id"]))
+        if ($change_stat == $value["id"])
         {
             if ($value['is_done'] == 0) {
                 $sql_request = "UPDATE tasks SET is_done = 1 WHERE title = '". $value['title'] ."' AND user_id = " . $user_id['id'] . " AND id = " . $value['id'] . "";
