@@ -10,7 +10,7 @@
         $value = isset($registration_data["email"]) ? $registration_data["email"] : "";
         ?>
 
-        <input class="form__input <?= $class_error ?>" type="text" name="email" id="email" value="<?= htmlspecialchars($value) ?>" placeholder="Введите e-mail">
+        <input class="form__input <?= $class_error ?>" type="text" name="email" id="email" value="<?= strip_tags($value) ?>" placeholder="Введите e-mail">
         
         <!--Вывод ошибки-->
         <?php if (isset($registration_errors)): ?>
@@ -31,7 +31,7 @@
         $value = isset($registration_data["password"]) ? $registration_data["password"] : "";
         ?>
 
-        <input class="form__input <?= $class_error ?>" type="password" name="password" id="password" value="<?= htmlspecialchars($value) ?>" placeholder="Введите пароль">
+        <input class="form__input <?= $class_error ?>" type="password" name="password" id="password" value="<?= strip_tags($value) ?>" placeholder="Введите пароль">
 
         <!--Вывод ошибки-->
         <?php if (isset($registration_errors)): ?>
@@ -52,7 +52,7 @@
         $value = isset($registration_data["name"]) ? $registration_data["name"] : "";
         ?>
 
-        <input class="form__input <?= $class_error ?>" type="password <?= $class_error ?>" name="name" id="name" value="<?= htmlspecialchars($value) ?>" placeholder="Введите имя">
+        <input class="form__input <?= $class_error ?>" type="password <?= $class_error ?>" name="name" id="name" value="<?= strip_tags($value) ?>" placeholder="Введите имя">
 
         <?php if (isset($registration_errors)): ?>
         <?php foreach($registration_errors as $err => $val): ?>

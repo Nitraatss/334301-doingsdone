@@ -38,10 +38,21 @@ function category_count($tasks, $project_name, $projects) {
     // счетчик задач
     $count = 0;
 
-    foreach($tasks as $key => $task) {
-        if($project_name === "Все" || $projects[$task["project_id"]] === $project_name)
-        {
-            $count++;
+    if ($_SESSION["check"] == "checked")
+    {
+        foreach($tasks as $key => $task) {
+            if($project_name === "Все" || $projects[$task["project_id"]] === $project_name)
+            {
+                $count++;
+            }
+        }
+    }
+    else {
+        foreach($tasks as $key => $task) {
+            if(($project_name === "Все" || $projects[$task["project_id"]] === $project_name) && ($task["is_done"] == 0))
+            {
+                $count++;
+            }
         }
     }
 
@@ -80,7 +91,7 @@ function searchUserByEmail($email, $users) {
 */
 function filter_tasks ($db_link, $sql_request, $user_id)
 {
-    $fliter_tasks = [];
+    $filter_tasks  = [];
 
     $stmt = mysqli_prepare($db_link, $sql_request);
     mysqli_stmt_bind_param($stmt, "i", $user_id);
@@ -93,12 +104,13 @@ function filter_tasks ($db_link, $sql_request, $user_id)
             "deadline_date" => $t_date,
             "project_id" => $pr_id,
             "is_done" => $is_done,
-            "file_path" => $file_path
+            "file_path" => $file_path,
+            "id" => $id
         ];
 
-        array_push($fliter_tasks, $single_task_data);
+        array_push($filter_tasks , $single_task_data);
     }
-    return ($fliter_tasks);
+    return ($filter_tasks );
 }
 
 ?>
