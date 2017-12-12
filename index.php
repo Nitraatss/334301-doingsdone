@@ -18,11 +18,21 @@ $current_date;
 $sql_request = "SELECT email, username, pass FROM users";
 $result = mysqli_query($db_link, $sql_request);
 $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
+$user_id;
 
 if ($_SESSION["user"]) {
-    $sql_request = "SELECT id FROM users WHERE username = '" . $_SESSION["user"]["username"] . "'";
-    $result = mysqli_query($db_link, $sql_request);
-    $user_id = mysqli_fetch_array($result, MYSQLI_ASSOC);
+    $sql_request = "SELECT id FROM users WHERE username = ?";
+
+    $stmt = mysqli_prepare($db_link, $sql_request);
+    mysqli_stmt_bind_param($stmt, "s", $_SESSION["user"]["username"]);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $id);
+
+    while (mysqli_stmt_fetch($stmt)) {
+        $user_id = [
+            "id" => $id
+        ];
+    }
 
     // создание массива с категориями проектов
     $sql_request = "SELECT category FROM projects WHERE user_id = " . $user_id['id'];
@@ -162,12 +172,12 @@ if (isset($_GET["changestatus"]))
         if ($change_stat == $value["id"])
         {
             if ($value['is_done'] == 0) {
-                $sql_request = "UPDATE tasks SET is_done = 1 WHERE title = '". $value['title'] ."' AND user_id = " . $user_id['id'] . " AND id = " . $value['id'] . "";
+                $sql_request = "UPDATE tasks SET is_done = 1 WHERE user_id = " . $user_id['id'] . " AND id = " . $value['id'] . "";
                 mysqli_query($db_link, $sql_request);
 
             }
             else {
-                $sql_request = "UPDATE tasks SET is_done = 0 WHERE title = '". $value['title'] ."'";
+                $sql_request = "UPDATE tasks SET is_done = 0 WHERE user_id = " . $user_id['id'] . " AND id = " . $value['id'] . "";
                 mysqli_query($db_link, $sql_request);
             }
 
