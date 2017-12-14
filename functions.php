@@ -96,7 +96,7 @@ function filter_tasks ($db_link, $sql_request, $user_id)
     $stmt = mysqli_prepare($db_link, $sql_request);
     mysqli_stmt_bind_param($stmt, "i", $user_id);
     mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path);
+    mysqli_stmt_bind_result($stmt, $t_title, $t_date, $pr_id, $is_done, $file_path, $id);
 
     while (mysqli_stmt_fetch($stmt)) {
         $single_task_data = [

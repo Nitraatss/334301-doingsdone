@@ -23,7 +23,7 @@
         <label class="form__label" for="category">Проект <sup>*</sup></label>
         <select class="form__input form__input--select <?= $class_error ?>" name="category" id="category">
             <?php for($i = 1; $i < count($projects); $i++): ?>
-            <option value="<?= $projects[$i] ?>"><?= $projects[$i] ?></option>
+            <option value="<?= strip_tags($projects[$i]) ?>"><?= strip_tags($projects[$i]) ?></option>
             <?php endfor; ?>
         </select>
     </div>

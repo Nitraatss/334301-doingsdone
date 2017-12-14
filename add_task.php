@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // получаем id категории проекта для БД
             foreach($projects as $key => $value)
-            {if ($task["category"] == $value) {
+            {if ($task["category"] == strip_tags($value)) {
                     $pr_id = $key;
                 }
             }
